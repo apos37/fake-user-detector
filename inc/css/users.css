@@ -1,0 +1,62 @@
+/* Scanning */
+#the-list tr.scanning {
+    background-image: repeating-linear-gradient(
+		-45deg,
+		#e4e7eb,
+        #e4e7eb 10px,
+        #f9fafb 10px,
+        #f9fafb 20px
+	);
+	background-size: 56.57px 56.57px;
+	background-position: 0 0;
+	animation: fudetector-stripe-move 3s linear infinite;
+}
+
+@keyframes fudetector-stripe-move {
+	from {
+		background-position: 0 0;
+	}
+	to {
+		background-position: 56.57px 0;
+	}
+}
+
+#the-list tr.scanning td.column-suspicious em::after {
+    content: '';
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    animation: dots 1.2s steps(3, end) infinite;
+    width: 1em;
+}
+
+@keyframes dots {
+    0%   { content: ''; }
+    33%  { content: '.'; }
+    66%  { content: '..'; }
+    100% { content: '...'; }
+}
+
+/* Results */
+#the-list tr.flagged {
+    background-color: #fde8e8; /* soft red */
+}
+#the-list tr.flagged th {
+    border-left: 4px solid #e3342f; /* slightly bold red */
+}
+#the-list tr.flagged td {
+    color: #7f1d1d; /* muted red text */
+}
+#the-list tr.flagged td.column-suspicious {
+    font-weight: 600;
+    color: #991b1b; /* slightly stronger red */
+}
+
+/* Hide Cleared */
+#the-list.hide-cleared tr.cleared {
+    display: none;
+    transition: all 1s;
+}
+
+/* Columns */
+.column-suspicious{ width: 10% }
