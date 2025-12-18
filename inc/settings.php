@@ -235,6 +235,15 @@ class Settings {
                 'default'    => FALSE,
             ],
             [
+                'key'        => 'uninstall_cleanup',
+                'title'      => __( 'Delete Plugin Data on Uninstall', 'fake-user-detector' ),
+                'comments'   => __( 'Deletes all plugin options and the "suspicious" usermeta key when the plugin is uninstalled.', 'fake-user-detector' ),
+                'field_type' => 'checkbox',
+                'sanitize'   => 'sanitize_checkbox',
+                'section'    => 'general',
+                'default'    => FALSE,
+            ],
+            [
                 'key'        => 'spam_words_list',
                 'title'      => __( 'Spam Trigger Words', 'fake-user-detector' ),
                 'comments'   => __( 'Enter words (separated by commas) that are commonly found in spam account names and bios. This is used for the "Known Spam Words" check.', 'fake-user-detector' ),
