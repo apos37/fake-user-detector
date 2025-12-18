@@ -743,7 +743,7 @@ class Flags {
         $log_flags = filter_var( get_option( 'fudetector_log_flags', false ), FILTER_VALIDATE_BOOLEAN );
         $did_find_words = ! empty( $found_words );
         if ( $log_flags && $did_find_words ) {
-           error_log( 'Spam words found for user ID ' . $user_id . ': ' . implode( ', ', $found_words ) );
+           error_log( 'Spam words found for user ID ' . $user_id . ': ' . implode( ', ', $found_words ) ); // phpcs:ignore 
         }
 
         return $did_find_words;
