@@ -14,7 +14,7 @@ use PluginRx\FakeUserDetector\Flags;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -115,7 +115,7 @@ class GravityForms {
         $fields[] = [
             'key'        => $this->setting_key,
             'title'      => __( 'Gravity Forms Registration Form Validation', 'fake-user-detector' ),
-            'comments'   => __( 'Select the Gravity Form used for user registration to enable fake account checks.', 'fake-user-detector' ),
+            'comments'   => __( 'Select the Gravity Form used for user registration to enable fake account checks during validation.<br>Keep in mind that if this is too strict, it may block legitimate users.<br>It is recommended to enable the "Check at Registration" option instead and use this only if necessary.', 'fake-user-detector' ),
             'field_type' => 'select',
             'options'    => $choices,
             'sanitize'   => 'absint',

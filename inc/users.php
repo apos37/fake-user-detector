@@ -8,7 +8,6 @@
  * Define Namespaces
  */
 namespace PluginRx\FakeUserDetector;
-use PluginRx\FakeUserDetector\IndividualUser;
 use PluginRx\FakeUserDetector\Indicator;
 use PluginRx\FakeUserDetector\Flags;
 
@@ -16,7 +15,7 @@ use PluginRx\FakeUserDetector\Flags;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -257,7 +256,7 @@ class Users {
         );
 
         // Allow manual marking
-        $suspicious = (new IndividualUser())->check( $user->ID, true );
+        $suspicious = get_user_meta( $user->ID, $this->meta_key_suspicious, true );
         if ( $suspicious !== 'cleared' ) {
             $actions[ 'fudetector_clear' ] = sprintf(
                 '<a href="#" class="fudetector-clear" data-userid="%d" data-method="clear">%s</a>',
@@ -351,7 +350,7 @@ class Users {
 
         // Our column
         } elseif ( $column_name == 'suspicious' ) {
-            $suspicious = (new IndividualUser())->check( $user_id, true );
+            $suspicious = get_user_meta( $user_id, $this->meta_key_suspicious, true );
 
             // They have been cleared - not suspicious
             if ( $suspicious === 'cleared' ) {

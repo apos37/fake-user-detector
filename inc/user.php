@@ -14,7 +14,7 @@ use PluginRx\FakeUserDetector\Flags;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -103,7 +103,7 @@ class IndividualUser {
      * @param int|WP_User $user_id_or_object User ID or WP_User object
      * @return array|false
      */
-    public function check( $user_id_or_object, $only_check_existing = false, $force_recheck = false, $update_user = true ) {
+    public function check( $user_id_or_object, $only_check_existing = false, $force_recheck = false, $update_cleared = true ) {
         // Normalize input: allow passing either an ID or a WP_User object.
         $user_obj = null;
         if ( is_object( $user_id_or_object ) && isset( $user_id_or_object->ID ) ) {
@@ -116,7 +116,7 @@ class IndividualUser {
         // If they are already cleared
         $suspicious = get_user_meta( $user_id, $this->meta_key_suspicious, true );
         $recheck = $force_recheck || get_option( 'fudetector_recheck_cleared' );
-        if ( !$recheck && $suspicious === 'cleared' ) {
+        if ( ! $recheck && $suspicious === 'cleared' ) {
             return 'cleared';
         }
 
@@ -132,7 +132,7 @@ class IndividualUser {
         }
 
         // If they have already been checked and found suspicious
-        if ( $suspicious !== 'cleared' && !empty( $suspicious ) && !$force_recheck ) {
+        if ( $suspicious !== 'cleared' && ! empty( $suspicious ) && ! $force_recheck ) {
             $active_flags = array_values( array_intersect( $suspicious, $enabled_keys ) );
             if ( !empty( $active_flags ) ) {
                 return $active_flags;
@@ -147,7 +147,7 @@ class IndividualUser {
 
         // Get the user object (reuse provided object if available)
         $user = $user_obj ?: get_userdata( $user_id );
-        if ( !$user ) {
+        if ( ! $user ) {
             return false;
         }
 
@@ -155,16 +155,14 @@ class IndividualUser {
         $user_flags = $this->run_flag_checks( $user, $enabled_keys );
 
         // If we have flags
-        if ( !empty( $user_flags ) ) {
-            if ( $update_user ) {
-                update_user_meta( $user_id, $this->meta_key_suspicious, $user_flags );
-            }
+        if ( ! empty( $user_flags ) ) {
+            update_user_meta( $user_id, $this->meta_key_suspicious, $user_flags );
             $this->log_flags( $user, $user_flags );
             $this->auto_delete( $user, $user_flags );
             do_action( 'fudetector_check_after_flagged', $user, $user_flags );
             return $user_flags;
         } else {
-            if ( $update_user ) {
+            if ( $update_cleared ) {
                 update_user_meta( $user_id, $this->meta_key_suspicious, 'cleared' );
             }
         }

@@ -14,7 +14,7 @@ use PluginRx\FakeUserDetector\Flags;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -69,13 +69,13 @@ class QuickScan {
         add_submenu_page(
             'users.php',
             FUDETECTOR_NAME . ' — ' . __( 'Scan', 'fake-user-detector' ),
-            'Account Monitor Scan',
+            'Fake User Scan',
             'manage_options',
-            'user_account_monitor_scan',
+            'fake_user_detector_scan',
             [ $this, 'scan_page' ]
         );
 
-        remove_submenu_page( 'users.php', 'user_account_monitor_scan' );
+        remove_submenu_page( 'users.php', 'fake_user_detector_scan' );
     } // End page()
     
 

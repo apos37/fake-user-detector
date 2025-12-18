@@ -14,7 +14,7 @@ use PluginRx\FakeUserDetector\Flags;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -29,6 +29,64 @@ add_action( 'init', function() {
  * The class
  */
 class Settings {
+
+    /**
+     * Default spam words
+     *
+     * @var array
+     */
+    public $default_spam_words = [
+        // Generic marketing
+        'buy now', 'click here', 'limited time', 'special offer', 'order now', 'shop now',
+        'free trial', 'get started', 'try now', 'subscribe now', 'instant access',
+        'act now', 'save big', 'don’t miss out', 'sign up', 'join now',
+
+        // Financial
+        'money back', '100% free', 'guaranteed', 'no risk', 'risk-free', 
+        'earn', 'income', 'double your', 'investment', 'profit', 'easy money',
+        'work from home', 'be your own boss',
+
+        // Urgency
+        'urgent', 'immediately', 'limited supply', 'only a few left', 'while supplies last',
+        'today only', 'last chance', 'final notice',
+
+        // Prizes and incentives
+        'bonus', 'prize', 'free gift', 'reward', 'giveaway', 'claim now', 'congratulations',
+        'you’ve been selected', 'exclusive deal', 'you’re a winner',
+
+        // Health/medications
+        'weight loss', 'cure', 'anti-aging', 'treatment', 'pain relief',
+        'no prescription', 'pharmacy', 'viagra', 'levitra', 'cialis',
+
+        // Scam/phishing indicators
+        'act now', 'dear friend', 'confidential', 'no obligation', 'click below',
+        'password', 'bank account', 'credit card', 'ssn', 'login', 'verify your account',
+        'update your information',
+
+        // Adult/spam content
+        'xxx', 'sex', 'nude', 'adult', 'porn', 'escort', 'camgirl', 'hot girls',
+        'dating', 'hookup', 'live chat', 'strip',
+
+        // Domains often seen in spam (omit if checking separately)
+        'bit.ly', 'tinyurl', 'goo.gl', 't.co',
+
+        // Cryptocurrency and high-risk finance
+        'bitcoin', 'crypto', 'blockchain', 'forex', 'binary options', 'nft', 'token sale',
+
+        // SEO and web services
+        'seo', 'backlinks', 'traffic', 'page rank', 'optimize your site', 'site audit',
+        'web design', 'email list', 'mailing list', 'marketing campaign',
+
+        // Language used by bots
+        'great post', 'thanks for sharing', 'check out my site', 'visit my blog',
+        'contact me', 'looking for friends', 'nice article', 'helpful info', 'i love this',
+        'interesting content', 'amazing write-up', 'follow me',
+
+        // Foreign marketing phrases (optional)
+        'acheter maintenant', 'meilleur prix', 'angebot', 'jetzt kaufen', 'compra ahora',
+        'precio bajo'
+    ];
+
    
     /**
      * Load on init
@@ -56,7 +114,7 @@ class Settings {
         add_submenu_page(
             'users.php',
             FUDETECTOR_NAME . ' — ' . __( 'Settings', 'fake-user-detector' ),
-            __( 'Account Monitor', 'fake-user-detector' ),
+            __( 'Fake User Settings', 'fake-user-detector' ),
             'manage_options',
             FUDETECTOR__TEXTDOMAIN,
             [ $this, 'page' ]
@@ -74,7 +132,7 @@ class Settings {
         add_submenu_page(
             'users.php', // still 'users.php' in network admin
             FUDETECTOR_NAME . ' — ' . __( 'Settings', 'fake-user-detector' ),
-            __( 'Account Monitor', 'fake-user-detector' ),
+            __( 'Fake User Settings', 'fake-user-detector' ),
             'manage_options',
             FUDETECTOR__TEXTDOMAIN,
             $page
@@ -112,7 +170,7 @@ class Settings {
 		<div class="wrap">
 			<h1><?php echo esc_attr( get_admin_page_title() ) ?></h1>
 
-            <a href="/wp-admin/users.php?page=user_account_monitor_scan" id="fudetector-run-scan" class="button button-primary" style="margin-top: 1rem;">
+            <a href="/wp-admin/users.php?page=fake_user_detector_scan" id="fudetector-run-scan" class="button button-primary" style="margin-top: 1rem;">
                 <?php esc_html_e( 'Run Quick Scan Now', 'fake-user-detector' ); ?>
             </a>
 
@@ -141,18 +199,27 @@ class Settings {
         // Settings
         $fields = [
             [
-                'key'        => 'hide_cleared',
-                'title'      => __( 'Temporarily Hide Cleared Users', 'fake-user-detector' ),
-                'comments'   => __( 'Temporarily hide users that are cleared during the scan so viewing the flagged list is easier.', 'fake-user-detector' ),
+                'key'        => 'check_at_registration',
+                'title'      => __( 'Check at Registration', 'fake-user-detector' ),
+                'comments'   => __( 'Check users for suspicious activity at the time of registration.', 'fake-user-detector' ),
+                'field_type' => 'checkbox',
+                'sanitize'   => 'sanitize_checkbox',
+                'section'    => 'general',
+                'default'    => TRUE,
+            ],
+            [
+                'key'        => 'recheck_cleared',
+                'title'      => __( 'Recheck Cleared Users', 'fake-user-detector' ),
+                'comments'   => __( 'Recheck all previously cleared users.', 'fake-user-detector' ),
                 'field_type' => 'checkbox',
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'general',
                 'default'    => FALSE,
             ],
             [
-                'key'        => 'recheck_cleared',
-                'title'      => __( 'Recheck Cleared Users', 'fake-user-detector' ),
-                'comments'   => __( 'Recheck all previously cleared users.', 'fake-user-detector' ),
+                'key'        => 'hide_cleared',
+                'title'      => __( 'Temporarily Hide Cleared Users', 'fake-user-detector' ),
+                'comments'   => __( 'Temporarily hide users that are cleared during the scan so viewing the flagged list is easier.', 'fake-user-detector' ),
                 'field_type' => 'checkbox',
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'general',
@@ -166,6 +233,15 @@ class Settings {
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'general',
                 'default'    => FALSE,
+            ],
+            [
+                'key'        => 'spam_words_list',
+                'title'      => __( 'Spam Trigger Words', 'fake-user-detector' ),
+                'comments'   => __( 'Enter words (separated by commas) that are commonly found in spam account names and bios. This is used for the "Known Spam Words" check.', 'fake-user-detector' ),
+                'field_type' => 'textarea',
+                'sanitize'   => 'sanitize_text_field',
+                'section'    => 'developer',
+                'default'    => implode( ', ', array_map( 'trim', $this->default_spam_words ) ),
             ],
             [
                 'key'        => 'columns',
@@ -275,9 +351,13 @@ class Settings {
          */
         // Iter the fields
         foreach ( $fields as $field ) {
-            $option_name = 'fudetector_'.$field[ 'key' ];
-            $callback = 'settings_field_'.$field[ 'field_type' ];
+            $option_name = 'fudetector_' . $field[ 'key' ];
+            $callback = 'settings_field_' . $field[ 'field_type' ];
 
+            // Carryover temporary settings
+            $this->carryover_temporary_settings( $field[ 'key' ] ); // TODO: Remove before publishing to repo
+
+            // Check if method exists
             if ( ! method_exists( $this, $callback ) ) {
                 $full_callback = get_class( $this ) . '::' . $callback;
                 error_log( FUDETECTOR_NAME . ': ' . sprintf( __( 'Method "%s" does not exist', 'fake-user-detector' ), $full_callback ) ); // phpcs:ignore
@@ -334,6 +414,22 @@ class Settings {
             add_settings_field( $option_name, $field[ 'title' ], [ $this, $callback ], $slug, $field[ 'section' ], $args );
         }
     } // End settings_fields()
+
+
+    /**
+     * Temporary carryover
+     */
+    private function carryover_temporary_settings( $key ) {
+        $old_option_name = 'uamonitor_' . $key;
+        $new_option_name = 'fudetector_' . $key;
+
+        // Use get_option() with a default that allows us to detect existence
+        $old_value = get_option( $old_option_name, '__fudetector_missing__' );
+        if ( $old_value !== '__fudetector_missing__' ) {
+            update_option( $new_option_name, $old_value );
+            delete_option( $old_option_name );
+        }
+    } // End carryover_temporary_settings()
   
     
     /**

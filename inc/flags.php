@@ -13,7 +13,7 @@ namespace PluginRx\FakeUserDetector;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -175,24 +175,6 @@ class Flags {
                 'default'    => TRUE,
             ],
             [
-                'key'        => 'short_names',
-                'title'      => __( 'Very Short Names', 'fake-user-detector' ),
-                'comments'   => $short_names_description,
-                'field_type' => 'checkbox',
-                'sanitize'   => 'sanitize_checkbox',
-                'section'    => 'checks',
-                'default'    => FALSE,
-            ],
-            [
-                'key'        => 'invalid_email_domain',
-                'title'      => __( 'Invalid Email Domain', 'fake-user-detector' ),
-                'comments'   => __( 'Flags if the email domain is disposable or not registered.', 'fake-user-detector' ),
-                'field_type' => 'checkbox',
-                'sanitize'   => 'sanitize_checkbox',
-                'section'    => 'checks',
-                'default'    => FALSE,
-            ],
-            [
                 'key'        => 'excessive_periods_email',
                 'title'      => __( 'Excessive Periods in Email', 'fake-user-detector' ),
                 'comments'   => __( 'Flags if the email address contains more than 3 periods.', 'fake-user-detector' ),
@@ -213,11 +195,29 @@ class Flags {
             [
                 'key'        => 'spam_words',
                 'title'      => __( 'Known Spam Words', 'fake-user-detector' ),
-                'comments'   => __( 'Flags if spam trigger words are found in user bio or name.', 'fake-user-detector' ),
+                'comments'   => __( 'Flags if spam trigger words are found in user bio or name. You can customize the list below.', 'fake-user-detector' ),
                 'field_type' => 'checkbox',
                 'sanitize'   => 'sanitize_checkbox',
                 'section'    => 'checks',
                 'default'    => TRUE,
+            ],
+            [
+                'key'        => 'invalid_email_domain',
+                'title'      => __( 'Invalid Email Domain', 'fake-user-detector' ),
+                'comments'   => __( 'Flags if the email domain is disposable or not registered.', 'fake-user-detector' ),
+                'field_type' => 'checkbox',
+                'sanitize'   => 'sanitize_checkbox',
+                'section'    => 'checks',
+                'default'    => FALSE,
+            ],
+            [
+                'key'        => 'short_names',
+                'title'      => __( 'Very Short Names', 'fake-user-detector' ),
+                'comments'   => $short_names_description,
+                'field_type' => 'checkbox',
+                'sanitize'   => 'sanitize_checkbox',
+                'section'    => 'checks',
+                'default'    => FALSE,
             ]
         ];
 
@@ -687,69 +687,18 @@ class Flags {
      * @return bool
      */
     public function check_spam_words( $user ) {
-        $default_spam_words = [
-            // Generic marketing
-            'buy now', 'click here', 'limited time', 'special offer', 'order now', 'shop now',
-            'free trial', 'get started', 'try now', 'subscribe now', 'instant access',
-            'act now', 'save big', 'don’t miss out', 'sign up', 'join now',
-
-            // Financial
-            'money back', '100% free', 'guaranteed', 'no risk', 'risk-free', 
-            'earn', 'income', 'double your', 'investment', 'profit', 'easy money',
-            'work from home', 'be your own boss',
-
-            // Urgency
-            'urgent', 'immediately', 'limited supply', 'only a few left', 'while supplies last',
-            'today only', 'last chance', 'final notice',
-
-            // Prizes and incentives
-            'bonus', 'prize', 'free gift', 'reward', 'giveaway', 'claim now', 'congratulations',
-            'you’ve been selected', 'exclusive deal', 'you’re a winner',
-
-            // Health/medications
-            'weight loss', 'cure', 'anti-aging', 'treatment', 'pain relief',
-            'no prescription', 'pharmacy', 'viagra', 'levitra', 'cialis',
-
-            // Scam/phishing indicators
-            'act now', 'dear friend', 'confidential', 'no obligation', 'click below',
-            'password', 'bank account', 'credit card', 'ssn', 'login', 'verify your account',
-            'update your information',
-
-            // Adult/spam content
-            'xxx', 'sex', 'nude', 'adult', 'porn', 'escort', 'camgirl', 'hot girls',
-            'dating', 'hookup', 'live chat', 'strip',
-
-            // Domains often seen in spam (omit if checking separately)
-            'bit.ly', 'tinyurl', 'goo.gl', 't.co',
-
-            // Cryptocurrency and high-risk finance
-            'bitcoin', 'crypto', 'blockchain', 'forex', 'binary options', 'nft', 'token sale',
-
-            // SEO and web services
-            'seo', 'backlinks', 'traffic', 'page rank', 'optimize your site', 'site audit',
-            'web design', 'email list', 'mailing list', 'marketing campaign',
-
-            // Language used by bots
-            'great post', 'thanks for sharing', 'check out my site', 'visit my blog',
-            'contact me', 'looking for friends', 'nice article', 'helpful info', 'i love this',
-            'interesting content', 'amazing write-up', 'follow me',
-
-            // Foreign marketing phrases (optional)
-            'acheter maintenant', 'meilleur prix', 'angebot', 'jetzt kaufen', 'compra ahora',
-            'precio bajo'
-        ];
-
-        $default_spam_words = apply_filters( 'fudetector_default_spam_words', $default_spam_words );
-
         $saved_list = get_option( 'fudetector_spam_words_list', '' );
+        if ( empty( $saved_list ) ) {
+            $saved_list = implode( ', ', array_map( 'trim', (new Settings())->default_spam_words ) );
+        }
 
         if ( strlen( trim( $saved_list ) ) > 0 ) {
-            $saved_words = preg_split( '/[\s,]+/', trim( $saved_list ) );
+            $saved_words = array_map( 'trim', explode( ',', trim( $saved_list ) ) );
         } else {
             $saved_words = [];
         }
 
-        $spam_words = array_unique( array_merge( $default_spam_words, $saved_words ) );
+        $spam_words = array_unique( $saved_words );
 
         $haystack = '';
 
@@ -791,7 +740,13 @@ class Flags {
 
         do_action( 'fudetector_spam_words_found', $user_id, $found_words );
 
-        return !empty( $found_words );
+        $log_flags = filter_var( get_option( 'fudetector_log_flags', false ), FILTER_VALIDATE_BOOLEAN );
+        $did_find_words = ! empty( $found_words );
+        if ( $log_flags && $did_find_words ) {
+           error_log( 'Spam words found for user ID ' . $user_id . ': ' . implode( ', ', $found_words ) );
+        }
+
+        return $did_find_words;
     } // End check_spam_words()
 
 }

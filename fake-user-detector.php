@@ -3,7 +3,7 @@
  * Plugin Name:         Fake User Detector
  * Plugin URI:          https://pluginrx.com/plugin/fake-user-detector/
  * Description:         Detect and flag fake user accounts based on suspicious input patterns.
- * Version:             1.1.0
+ * Version:             1.0.2
  * Requires at least:   5.9
  * Tested up to:        6.9
  * Requires PHP:        8.0
@@ -26,7 +26,7 @@ namespace PluginRx\FakeUserDetector;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -83,7 +83,7 @@ require_once FUDETECTOR_INCLUDES_ABSPATH . 'users.php';
 require_once FUDETECTOR_INCLUDES_ABSPATH . 'quick-scan.php';
 require_once FUDETECTOR_INCLUDES_ABSPATH . 'flags.php';
 require_once FUDETECTOR_INCLUDES_ABSPATH . 'indicator.php';
-// require_once FUDETECTOR_INCLUDES_ABSPATH . 'registration.php';
+require_once FUDETECTOR_INCLUDES_ABSPATH . 'registration.php';
 require_once FUDETECTOR_INCLUDES_ABSPATH . 'settings.php';
 
 /**

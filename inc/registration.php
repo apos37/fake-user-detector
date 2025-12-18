@@ -14,7 +14,7 @@ use PluginRx\FakeUserDetector\IndividualUser;
 /**
  * Exit if accessed directly.
  */
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /**
@@ -33,20 +33,52 @@ class Registration {
      */
     public function __construct() {
 
-        // Check for flags on new user registration
-        add_action( 'user_register', [ $this, 'check_new_user' ], 10, 1 );
+        // Enable check new users at registration
+        if ( ! get_option( 'fudetector_check_at_registration' ) ) {
+            return;
+        }
+
+        // Schedule a deferred check for new users
+        add_action( 'user_register', [ $this, 'schedule_new_user_check' ], 10, 1 );
+
+        // Hook the cron to run the actual check
+        add_action( 'fudetector_check_new_user_cron', [ $this, 'check_new_user_cron' ], 10, 1 );
 
     } // End __construct()
 
 
     /**
-     * Check the new user after registration
+     * Schedule a one-off cron to check the new user
      *
      * @param int $user_id
-     * @return void
      */
-    public function check_new_user( $user_id ) {
-        (new IndividualUser())->check( $user_id, false, false, false );
-    } // End check_new_user()
+    public function schedule_new_user_check( $user_id ) {
+        if ( ! wp_next_scheduled( 'fudetector_check_new_user_cron', [ $user_id ] ) ) {
+            wp_schedule_single_event( time() + 10, 'fudetector_check_new_user_cron', [ $user_id ] );
+        }
+    } // End schedule_new_user_check()
+    
+
+    /**
+     * Run the actual user check via cron
+     *
+     * @param int $user_id
+     */
+    public function check_new_user_cron( $user_id ) {
+        $user = get_user_by( 'id', $user_id );
+        if ( ! $user ) {
+            return;
+        }
+
+        $first_name   = get_user_meta( $user_id, 'first_name', true );
+        $last_name    = get_user_meta( $user_id, 'last_name', true );
+        $display_name = $user->display_name;
+
+        if ( empty( $first_name ) || empty( $last_name ) || empty( $display_name ) ) {
+            return;
+        }
+
+        ( new IndividualUser() )->check( $user_id, false, false, false );
+    } // End check_new_user_cron()
 
 }
