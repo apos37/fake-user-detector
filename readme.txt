@@ -4,7 +4,7 @@ Tags: spam, user registration, fake users, bot detection, account flagging
 Requires at least: 5.9
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -64,6 +64,10 @@ Yes. The plugin settings let you turn on or off individual detection checks such
 We recommend using our [website support forum](https://pluginrx.com/support/plugin/fake-user-detector/) as the primary method for requesting features and getting help. You can also reach out via our [Discord support server](https://discord.gg/3HnzNEJVnR) or the [WordPress.org support forum](https://wordpress.org/support/plugin/fake-user-detector/), but please note that WordPress.org doesn’t always notify us of new posts, so it’s not ideal for time-sensitive issues.
 
 == Changelog ==
+= 1.0.3 =
+* Update: Prepare for release on WP Repo
+* Fix: Check registration option not enabled by default unless settings have been saved
+
 = 1.0.2 =
 * Fix: Spam phrases not parsing correctly
 * Update: Added spam words field for easy editing

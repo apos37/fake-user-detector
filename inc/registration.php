@@ -34,7 +34,7 @@ class Registration {
     public function __construct() {
 
         // Enable check new users at registration
-        if ( ! get_option( 'fudetector_check_at_registration' ) ) {
+        if ( ! get_option( 'fudetector_check_at_registration', true ) ) {
             return;
         }
 

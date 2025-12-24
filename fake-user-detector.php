@@ -3,7 +3,7 @@
  * Plugin Name:         Fake User Detector
  * Plugin URI:          https://pluginrx.com/plugin/fake-user-detector/
  * Description:         Detect and flag fake user accounts based on suspicious input patterns.
- * Version:             1.0.2
+ * Version:             1.0.3
  * Requires at least:   5.9
  * Tested up to:        6.9
  * Requires PHP:        8.0
